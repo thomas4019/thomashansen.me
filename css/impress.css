@@ -1,0 +1,67 @@
+/* menu */
+
+#menu {
+    width: 100%;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background: rgba(0,0,0,0.5);
+    color: #EEE;
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    z-index: 1000;
+}
+
+#menu li {
+    list-style-type: none;
+    display: inline;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 26px;
+    font-family: 'PT Serif', georgia, serif;
+    text-shadow: 2px 2px 4px #222;
+}
+
+#menu li a {
+    color: white;
+    text-decoration: none;
+}
+
+/* impress slideshow */
+
+.impress-supported .fallback-message {
+    display: none;
+}
+
+.step {
+    position: relative;
+    width: 1000px;
+    padding: 20px;
+    margin: 20px auto;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing:    border-box;
+    -ms-box-sizing:     border-box;
+    -o-box-sizing:      border-box;
+    box-sizing:         border-box;
+
+    font-family: 'PT Serif', georgia, serif;
+    font-size: 24px;
+    line-height: 1.5;
+}
+
+p {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 40px;
+}
+
+/* Step Specials */
+#portfolio  p {
+    font-size: 18px !important;
+}
