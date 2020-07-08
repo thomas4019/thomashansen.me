@@ -42,15 +42,21 @@ h1 {
 #story {
 	font-family: 'Arial';
 	font-size: 1.5em;
-	text-shadow: 2px 2px rgba(100, 100, 100, .5);
+	text-shadow: 1.5px 1.5px rgba(100, 100, 100, .5);
 	line-height: 1.3em;
 
 	/*background-color: rgba(50, 50, 50, 0.2);*/
 	box-shadow: inset 0px 0px 10px 10px rgba(255, 255, 255, .1);
 	border-radius: 10px;
-	color: white;
+	color: black;
 	padding: 20px;
 	padding-bottom: 0px;
+}
+
+@media screen and (max-width: 992px) {
+	#story {
+		background-color: rgba(255, 255, 255, 0.4);
+	}
 }
 
 #icons {
@@ -69,5 +75,8 @@ a:hover {
 }
 
 a:visited {
+	color: white !important;
+}
+#icons a {
 	color: white;
 }
