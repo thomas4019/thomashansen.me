@@ -1,0 +1,121 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*.option-form {
+  padding-left: 25px;
+  padding-top: 4px;
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+input.short-num[data-v-6953bc62] {
+  width: 50px;
+}
+
+.option-form[data-v-06aac422] {
+  padding-left: 25px;
+  padding-top: 4px;
+}
+input.short-num[data-v-06aac422] {
+  width: 50px;
+}
+
+.option-form[data-v-1e98e177] {
+  padding-left: 25px;
+  padding-top: 4px;
+}
+.schema-object[data-v-1e98e177] {
+  border-left: 2px dotted gray;
+  padding-left: 8px;
+  padding-top: 10px;
+  text-align: left;
+}
+.type-select[data-v-1e98e177] {
+  margin-left: 5px;
+}
+.required-icon[data-v-1e98e177] {
+  font-size: 1em;
+  color: red;
+  font-weight: bold;
+  padding-left: 5px;
+}
+.field[data-v-1e98e177] {
+  padding-bottom: 5px;
+}
+.description[data-v-1e98e177] {
+  margin-left: 6px;
+  width: 350px;
+}
+.delete-prop[data-v-1e98e177] {
+  border: 1px solid black;
+  padding: 0px 4px 0px 4px;
+  pointer: cursor;
+}
+.more-options-btn[data-v-1e98e177] {
+  font-size: 20px;
+  padding-right: 6px;
+}
