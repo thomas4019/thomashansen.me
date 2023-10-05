@@ -155,4 +155,4 @@ This is why running a [vacuum](https://www.postgresql.org/docs/current/sql-vacuu
 Optimizing read queries in PostgreSQL can lead to significant performance gains and cost savings. By understanding and applying these techniques, you can ensure your databases run efficiently and smoothly.
 
 ## More advanced follow ups to come
-In upcoming articles, we'll explore advanced techniques such as ensuring optimal buffer cache ratios and optimizing data locality in the Postgres heap.
+In upcoming articles, we'll explore advanced techniques such as ensuring optimal buffer cache ratios, table partitioning, optimizing data locality in the Postgres heap.
