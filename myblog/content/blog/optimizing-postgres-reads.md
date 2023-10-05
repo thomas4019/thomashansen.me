@@ -38,7 +38,7 @@ CREATE TABLE "cities" (
 );
 ```
 
-The most resource-intensive queries are as follows:
+The most resource-intensive query is shown below:
 
 ```sql
 SELECT latitude, longitude, id FROM cities WHERE country_code = ?
@@ -75,7 +75,7 @@ We see that country_code isn’t indexed. We could change our application to use
 CREATE INDEX CONCURRENTLY ON cities (country_code);
 ```
 
-As expected, it now runs much faster, as expected.
+As expected, it now runs over 10x faster.
 
 ```sql
 Index Scan using cities_country_code_idx on cities  (cost=0.29..932.17 rows=1055 width=20) (actual time=0.080..3.141 rows=1079 loops=1)
@@ -149,6 +149,8 @@ PostgreSQL maintains a structure called the "visibility map" for each table. Thi
 When performing an index-only scan, PostgreSQL can consult the visibility map. If the bit corresponding to a page is set, then PostgreSQL knows that every row on that page is visible to all transactions. In such cases, there's no need to fetch the page from the heap to check the visibility of individual rows. This can significantly reduce the I/O costs.
 
 This is why running a [vacuum](https://www.postgresql.org/docs/current/sql-vacuum.html) and updating postgres to run vacuums more frequently help reduce resource usage.
+
+Also note that each index adds more work for write queries, so the balance between adding a new index and its benefit should be considered.
 
 ## Conclusion
 

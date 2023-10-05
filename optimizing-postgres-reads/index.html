@@ -136,8 +136,8 @@
 </span><span>Planning </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">363</span><span> ms
 </span><span>Execution </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">3</span><span>.</span><span style="color:#a5c261;">884</span><span> ms
 </span></code></pre>
-<p>We end up with similar performance which makes sense since it didn't do an index only query. When there's a lot of dirty rows/pages, index only queries aren't as good since it will still need to check most rows for if they're visible (see <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#covering-indexes">covering indexes section</a> below)</p>
-<p>Let's run a vacuum now and also update the table settings to vacuum if more than 1% of the rows are dirty (the default is 20%).</p>
+<p>We end up with similar performance which makes sense since it didn't do an index only query. When there's a lot of dead rows/pages, index only queries aren't as good since it will still need to check most rows for if they're visible (see <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#covering-indexes">covering indexes section</a> below)</p>
+<p>Let's run a vacuum now and also update the table settings to vacuum if more than 1% of the rows are dead (the default is 20%).</p>
 <pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>VACUUM cities
 </span><span style="color:#cc7833;">ALTER TABLE </span><span>cities </span><span style="color:#cc7833;">SET</span><span> (autovacuum_vacuum_scale_factor </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">01</span><span>);
 </span></code></pre>
@@ -178,7 +178,7 @@ PostgreSQL maintains a structure called the &quot;visibility map&quot; for each 
 <h2 id="conclusion">Conclusion</h2>
 <p>Optimizing read queries in PostgreSQL can lead to significant performance gains and cost savings. By understanding and applying these techniques, you can ensure your databases run efficiently and smoothly.</p>
 <h2 id="more-advanced-follow-ups-to-come">More advanced follow ups to come</h2>
-<p>In upcoming articles, we'll explore advanced techniques such as ensuring optimal buffer cache ratios and optimizing data locality in the Postgres heap.</p>
+<p>In upcoming articles, we'll explore advanced techniques such as ensuring optimal buffer cache ratios, table partitioning, optimizing data locality in the Postgres heap.</p>
 
 <hr>
 By <a href="https://github.com/thomas4019">Thomas Hansen</a>, published on 2023-10-05
