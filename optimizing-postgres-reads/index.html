@@ -97,7 +97,7 @@
 </span><span>  </span><span style="color:#c1be91;">&quot;updated_at&quot; </span><span style="font-style:italic;color:#6e9cbe;">timestamp </span><span style="color:#cc7833;">NOT </span><span style="color:#6e9cbe;">NULL </span><span style="color:#cc7833;">DEFAULT </span><span style="color:#da4939;">CURRENT_TIMESTAMP</span><span>,
 </span><span>);
 </span></code></pre>
-<p>The most resource-intensive queries are as follows:</p>
+<p>The most resource-intensive query is shown below:</p>
 <pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#cc7833;">SELECT</span><span> latitude, longitude, id </span><span style="color:#cc7833;">FROM</span><span> cities </span><span style="color:#cc7833;">WHERE</span><span> country_code </span><span style="color:#cc7833;">=</span><span> ?
 </span></code></pre>
 <p>We run explain and get this output.<br />
@@ -120,7 +120,7 @@
 <p>We see that country_code isn’t indexed. We could change our application to use the <code>country_id</code> field or instead we can just add another index. Let's do that.</p>
 <pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#cc7833;">CREATE INDEX </span><span>CONCURRENTLY ON </span><span style="color:#ffc66d;">cities</span><span> (country_code);
 </span></code></pre>
-<p>As expected, it now runs much faster, as expected.</p>
+<p>As expected, it now runs over 10x faster.</p>
 <pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>Index Scan </span><span style="color:#cc7833;">using</span><span> cities_country_code_idx on cities  (cost</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">29</span><span>..</span><span style="color:#a5c261;">932</span><span>.</span><span style="color:#a5c261;">17</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1055</span><span> width</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">20</span><span>) (actual </span><span style="font-style:italic;color:#6e9cbe;">time</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">080</span><span>..</span><span style="color:#a5c261;">3</span><span>.</span><span style="color:#a5c261;">141</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1079</span><span> loops</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1</span><span>)
 </span><span>  Index Cond: ((country_code)::</span><span style="font-style:italic;color:#6e9cbe;">text </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">&#39;CA&#39;</span><span>::</span><span style="font-style:italic;color:#6e9cbe;">text</span><span>)
 </span><span>  Buffers: shared hit</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">644
@@ -175,10 +175,11 @@ Postgres uses the <a href="https://en.wikipedia.org/wiki/Multiversion_concurrenc
 PostgreSQL maintains a structure called the &quot;visibility map&quot; for each table. This map has one bit for every page in the table. If all the rows in a page are visible to all transactions (i.e., they are not part of any ongoing or future transaction), the bit for that page is set to &quot;visible.&quot;</p>
 <p>When performing an index-only scan, PostgreSQL can consult the visibility map. If the bit corresponding to a page is set, then PostgreSQL knows that every row on that page is visible to all transactions. In such cases, there's no need to fetch the page from the heap to check the visibility of individual rows. This can significantly reduce the I/O costs.</p>
 <p>This is why running a <a href="https://www.postgresql.org/docs/current/sql-vacuum.html">vacuum</a> and updating postgres to run vacuums more frequently help reduce resource usage.</p>
+<p>Also note that each index adds more work for write queries, so the balance between adding a new index and its benefit should be considered.</p>
 <h2 id="conclusion">Conclusion</h2>
 <p>Optimizing read queries in PostgreSQL can lead to significant performance gains and cost savings. By understanding and applying these techniques, you can ensure your databases run efficiently and smoothly.</p>
 <h2 id="more-advanced-follow-ups-to-come">More advanced follow ups to come</h2>
-<p>In upcoming articles, we'll explore advanced techniques such as ensuring optimal buffer cache ratios, table partitioning, optimizing data locality in the Postgres heap.</p>
+<p>In upcoming articles, we'll explore advanced techniques such as ensuring optimal buffer cache ratios, table partitioning and optimizing data locality in the Postgres heap.</p>
 
 <hr>
 By <a href="https://github.com/thomas4019">Thomas Hansen</a>, published on 2023-10-05
