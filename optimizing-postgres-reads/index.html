@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>MyBlog</title>
+  <style>
+    body {
+      background-color: #fbfbfb;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+      max-width: 100ch;
+      margin: 1.5rem auto;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+    pre.language-sql {
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="section">
+    <div class="container">
+      
+<h1 class="title">
+  Optimizing Read Queries in PostgreSQL: A Step-by-Step Guide
+</h1>
+
+
+    <ul>
+    
+        <li>
+            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#main-steps">Main Steps</a>
+            
+        </li>
+    
+        <li>
+            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#example-walkthrough">Example Walkthrough</a>
+            
+        </li>
+    
+        <li>
+            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#finding-your-queries-that-are-using-the-most-cpu-heavy-queries">Finding your queries that are using the most CPU (heavy queries)</a>
+            
+        </li>
+    
+        <li>
+            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#covering-indexes">Covering indexes</a>
+            
+        </li>
+    
+        <li>
+            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#conclusion">Conclusion</a>
+            
+        </li>
+    
+        <li>
+            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#more-advanced-follow-ups-to-come">More advanced follow ups to come</a>
+            
+        </li>
+    
+    </ul>
+
+
+<p>In a previous role, I honed my skills in optimizing PostgreSQL read queries. The result? A whopping 50% reduction in database costs and, in certain services, I eliminated the need for Redis caching of query results.</p>
+<p>This post is mostly relevant to those with heavy read query load where multiple records are returned in each query on tables that also get frequent updates or deletes.</p>
+<h2 id="main-steps">Main Steps</h2>
+<ol>
+<li>
+<p>Find your queries that are using the most CPU (heavy queries)</p>
+</li>
+<li>
+<p>Run EXPLAIN on the heavy queries</p>
+</li>
+<li>
+<p>Add basic indexes (if any are missing)</p>
+</li>
+<li>
+<p>Add covering indexes</p>
+</li>
+<li>
+<p>Vacuum and tune vacuum settings</p>
+</li>
+</ol>
+<p>I'll go through these steps in detail in the context of a specific example. We'll also delve deeper into certain steps later on.</p>
+<h2 id="example-walkthrough">Example Walkthrough</h2>
+<p>For demonstration purposes, let's consider a table with the following schema and 144,000 records</p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#cc7833;">CREATE TABLE </span><span>&quot;</span><span style="color:#ffc66d;">cities</span><span>&quot; (
+</span><span>  </span><span style="color:#c1be91;">&quot;id&quot; </span><span style="font-style:italic;color:#6e9cbe;">serial</span><span>,
+</span><span>  </span><span style="color:#c1be91;">&quot;name&quot; </span><span style="font-style:italic;color:#6e9cbe;">varchar</span><span>(</span><span style="color:#a5c261;">255</span><span>) </span><span style="color:#cc7833;">NOT </span><span style="color:#6e9cbe;">NULL</span><span>,
+</span><span>  </span><span style="color:#c1be91;">&quot;state_id&quot; </span><span style="font-style:italic;color:#6e9cbe;">integer </span><span style="color:#cc7833;">NOT </span><span style="color:#6e9cbe;">NULL</span><span>,
+</span><span>  </span><span style="color:#c1be91;">&quot;country_code&quot; </span><span style="font-style:italic;color:#6e9cbe;">char</span><span>(</span><span style="color:#a5c261;">2</span><span>) </span><span style="color:#cc7833;">NOT </span><span style="color:#6e9cbe;">NULL</span><span>,
+</span><span>  </span><span style="color:#c1be91;">&quot;latitude&quot; </span><span style="font-style:italic;color:#6e9cbe;">decimal</span><span>(</span><span style="color:#a5c261;">10</span><span>,</span><span style="color:#a5c261;">8</span><span>) </span><span style="color:#cc7833;">NOT </span><span style="color:#6e9cbe;">NULL</span><span>,
+</span><span>  </span><span style="color:#c1be91;">&quot;longitude&quot; </span><span style="font-style:italic;color:#6e9cbe;">decimal</span><span>(</span><span style="color:#a5c261;">11</span><span>,</span><span style="color:#a5c261;">8</span><span>) </span><span style="color:#cc7833;">NOT </span><span style="color:#6e9cbe;">NULL</span><span>,
+</span><span>  </span><span style="color:#c1be91;">&quot;updated_at&quot; </span><span style="font-style:italic;color:#6e9cbe;">timestamp </span><span style="color:#cc7833;">NOT </span><span style="color:#6e9cbe;">NULL </span><span style="color:#cc7833;">DEFAULT </span><span style="color:#da4939;">CURRENT_TIMESTAMP</span><span>,
+</span><span>);
+</span></code></pre>
+<p>The most resource-intensive queries are as follows:</p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#cc7833;">SELECT</span><span> latitude, longitude, id </span><span style="color:#cc7833;">FROM</span><span> cities </span><span style="color:#cc7833;">WHERE</span><span> country_code </span><span style="color:#cc7833;">=</span><span> ?
+</span></code></pre>
+<p>We run explain and get this output.<br />
+<em>Note: for each explain output, I ran it 5 times and took the median to reduce the noise a bit.</em></p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>explain (analyze, buffers) </span><span style="color:#cc7833;">SELECT</span><span> latitude, longitude, id </span><span style="color:#cc7833;">FROM</span><span> cities </span><span style="color:#cc7833;">WHERE</span><span> country_code </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">&#39;CA&#39;</span><span>;
+</span></code></pre>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>Seq Scan on cities  (cost</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">00</span><span>..</span><span style="color:#a5c261;">3840</span><span>.</span><span style="color:#a5c261;">89</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1055</span><span> width</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">20</span><span>) (actual </span><span style="font-style:italic;color:#6e9cbe;">time</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">065</span><span>..</span><span style="color:#a5c261;">32</span><span>.</span><span style="color:#a5c261;">351</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1079</span><span> loops</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1</span><span>)
+</span><span>  Filter: ((country_code)::</span><span style="font-style:italic;color:#6e9cbe;">text </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">&#39;CA&#39;</span><span>::</span><span style="font-style:italic;color:#6e9cbe;">text</span><span>)
+</span><span>  Rows Removed by Filter: </span><span style="color:#a5c261;">143472
+</span><span>  Buffers: shared hit</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">2034
+</span><span>Planning </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">338</span><span> ms
+</span><span>Execution </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">32</span><span>.</span><span style="color:#a5c261;">484</span><span> ms
+</span></code></pre>
+<p>We run <code>\d cities</code> in the psql terminal to get the current indexes and notice that country_code isn't in the list.</p>
+<pre style="background-color:#383838;color:#e6e1dc;"><code><span>Indexes:
+</span><span>    &quot;cities_country_id_idx&quot; btree (country_id)
+</span><span>    &quot;cities_id_idx&quot; UNIQUE, btree (id)
+</span><span>    &quot;cities_state_id_idx&quot; btree (state_id)
+</span></code></pre>
+<p>We see that country_code isn’t indexed. We could change our application to use the <code>country_id</code> field or instead we can just add another index. Let's do that.</p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#cc7833;">CREATE INDEX </span><span>CONCURRENTLY ON </span><span style="color:#ffc66d;">cities</span><span> (country_code);
+</span></code></pre>
+<p>As expected, it now runs much faster, as expected.</p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>Index Scan </span><span style="color:#cc7833;">using</span><span> cities_country_code_idx on cities  (cost</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">29</span><span>..</span><span style="color:#a5c261;">932</span><span>.</span><span style="color:#a5c261;">17</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1055</span><span> width</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">20</span><span>) (actual </span><span style="font-style:italic;color:#6e9cbe;">time</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">080</span><span>..</span><span style="color:#a5c261;">3</span><span>.</span><span style="color:#a5c261;">141</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1079</span><span> loops</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1</span><span>)
+</span><span>  Index Cond: ((country_code)::</span><span style="font-style:italic;color:#6e9cbe;">text </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">&#39;CA&#39;</span><span>::</span><span style="font-style:italic;color:#6e9cbe;">text</span><span>)
+</span><span>  Buffers: shared hit</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">644
+</span><span>Planning </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">651</span><span> ms
+</span><span>Execution </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">3</span><span>.</span><span style="color:#a5c261;">275</span><span> ms
+</span></code></pre>
+<p>Great! But we’re not done yet though if we want to really optimize things. Let's add a covering index (one where all the data needed by this query is in the index)</p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#cc7833;">CREATE INDEX </span><span>CONCURRENTLY ON </span><span style="color:#ffc66d;">cities</span><span> (country_code) INCLUDE (id, latitude, longitude);
+</span></code></pre>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>Index Scan </span><span style="color:#cc7833;">using</span><span> cities_country_code_idx on cities  (cost</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">29</span><span>..</span><span style="color:#a5c261;">932</span><span>.</span><span style="color:#a5c261;">17</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1055</span><span> width</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">20</span><span>) (actual </span><span style="font-style:italic;color:#6e9cbe;">time</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">073</span><span>..</span><span style="color:#a5c261;">3</span><span>.</span><span style="color:#a5c261;">758</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1079</span><span> loops</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1</span><span>)
+</span><span>  Index Cond: ((country_code)::</span><span style="font-style:italic;color:#6e9cbe;">text </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">&#39;CA&#39;</span><span>::</span><span style="font-style:italic;color:#6e9cbe;">text</span><span>)
+</span><span>  Buffers: shared hit</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">644
+</span><span>Planning </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">363</span><span> ms
+</span><span>Execution </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">3</span><span>.</span><span style="color:#a5c261;">884</span><span> ms
+</span></code></pre>
+<p>We end up with similar performance which makes sense since it didn't do an index only query. When there's a lot of dirty rows/pages, index only queries aren't as good since it will still need to check most rows for if they're visible (see <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#covering-indexes">covering indexes section</a> below)</p>
+<p>Let's run a vacuum now and also update the table settings to vacuum if more than 1% of the rows are dirty (the default is 20%).</p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>VACUUM cities
+</span><span style="color:#cc7833;">ALTER TABLE </span><span>cities </span><span style="color:#cc7833;">SET</span><span> (autovacuum_vacuum_scale_factor </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">01</span><span>);
+</span></code></pre>
+<p>Now our query is using the index only plan and is super fast and performant. </p>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span>Index Only Scan </span><span style="color:#cc7833;">using</span><span> cities_country_code_id_latitude_longitude_idx on cities  (cost</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">42</span><span>..</span><span style="color:#a5c261;">27</span><span>.</span><span style="color:#a5c261;">55</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1036</span><span> width</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">20</span><span>) (actual </span><span style="font-style:italic;color:#6e9cbe;">time</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">057</span><span>..</span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">398</span><span> rows</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1079</span><span> loops</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">1</span><span>)
+</span><span>  Index Cond: (country_code </span><span style="color:#cc7833;">= </span><span style="color:#a5c261;">&#39;CA&#39;</span><span>::</span><span style="font-style:italic;color:#6e9cbe;">text</span><span>)
+</span><span>  Heap Fetches: </span><span style="color:#a5c261;">0
+</span><span>  Buffers: shared hit</span><span style="color:#cc7833;">=</span><span style="color:#a5c261;">11
+</span><span>Planning </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">428</span><span> ms
+</span><span>Execution </span><span style="font-style:italic;color:#6e9cbe;">Time</span><span>: </span><span style="color:#a5c261;">0</span><span>.</span><span style="color:#a5c261;">549</span><span> ms
+</span></code></pre>
+<p>The clear benefit is a reduction in execution time. I've found that generally execution time highly correlates with CPU usage so in this case so we should similarly see overall CPU usage reduction.</p>
+<h2 id="finding-your-queries-that-are-using-the-most-cpu-heavy-queries">Finding your queries that are using the most CPU (heavy queries)</h2>
+<ul>
+<li>
+<p>If you're on AWS RDS, leverage the <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PerfInsights.Overview.html">Performance Insights</a> tool to break down the CPU load by query</p>
+</li>
+<li>
+<p>Alternatively, if you connect directly to your Postgres instance (ensure you're connected to a reader in multi-instance setups) and run the following query, you'll get insights into which queries are currently active</p>
+</li>
+</ul>
+<pre data-lang="sql" style="background-color:#383838;color:#e6e1dc;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#cc7833;">SELECT</span><span> pid, age(clock_timestamp(), query_start), usename, state, query 
+</span><span style="color:#cc7833;">FROM</span><span> pg_stat_activity 
+</span><span style="color:#cc7833;">WHERE</span><span> query </span><span style="color:#cc7833;">!= </span><span style="color:#a5c261;">&#39;&lt;IDLE&gt;&#39; </span><span style="color:#cc7833;">AND</span><span> state </span><span style="color:#cc7833;">!= </span><span style="color:#a5c261;">&#39;idle&#39; </span><span style="color:#cc7833;">AND</span><span> query NOT ILIKE </span><span style="color:#a5c261;">&#39;%pg_stat_activity%&#39; 
+</span><span style="color:#cc7833;">ORDER BY</span><span> query_start </span><span style="color:#cc7833;">desc</span><span>;
+</span></code></pre>
+<ul>
+<li>You can enable the slow query log inside postgres to have it log queries that take longer than N milliseconds. This approach is great at finding resource heavy queries by duration, but it isn’t helpful at finding queries that are running at a reasonable speed yet are called so frequently that they are worth optimizing. Caution: this logging can add overhead and flood logs if not tuned properly.</li>
+</ul>
+<h2 id="covering-indexes">Covering indexes</h2>
+<p>Usually when Postgres runs a query, it collects data from one or more indexes and then fetches the rows from the main data area (called the heap in Postgres). If we create an index that has all the info needed, then Postgres can avoid accessing the heap at all which saves time and CPU.</p>
+<p><strong>&quot;the visibility bit&quot;</strong>
+Postgres uses the <a href="https://en.wikipedia.org/wiki/Multiversion_concurrency_control">MVCC</a> approach, which means that some records in indexes and the heap may be part of a transaction that hasn't been committed yet. It ensures data consistency when multiple transactions are occurring. It does this by marking records with transaction IDs, so it knows when they should become visible or be hidden. For example, each row has a <code>xmin</code> which is the txid when that row should start being visible and an <code>xmax</code> which is txid when this should no longer be visible.</p>
+<p><strong>&quot;the visibility map</strong>
+PostgreSQL maintains a structure called the &quot;visibility map&quot; for each table. This map has one bit for every page in the table. If all the rows in a page are visible to all transactions (i.e., they are not part of any ongoing or future transaction), the bit for that page is set to &quot;visible.&quot;</p>
+<p>When performing an index-only scan, PostgreSQL can consult the visibility map. If the bit corresponding to a page is set, then PostgreSQL knows that every row on that page is visible to all transactions. In such cases, there's no need to fetch the page from the heap to check the visibility of individual rows. This can significantly reduce the I/O costs.</p>
+<p>This is why running a <a href="https://www.postgresql.org/docs/current/sql-vacuum.html">vacuum</a> and updating postgres to run vacuums more frequently help reduce resource usage.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Optimizing read queries in PostgreSQL can lead to significant performance gains and cost savings. By understanding and applying these techniques, you can ensure your databases run efficiently and smoothly.</p>
+<h2 id="more-advanced-follow-ups-to-come">More advanced follow ups to come</h2>
+<p>In upcoming articles, we'll explore advanced techniques such as ensuring optimal buffer cache ratios and optimizing data locality in the Postgres heap.</p>
+
+<hr>
+By <a href="https://github.com/thomas4019">Thomas Hansen</a>, published on 2023-10-05
+
+    </div>
+  </section>
+</body>
+
+</html>
