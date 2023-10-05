@@ -99,9 +99,9 @@ Planning Time: 0.363 ms
 Execution Time: 3.884 ms
 ```
 
-We end up with similar performance which makes sense since it didn't do an index only query. When there's a lot of dirty rows/pages, index only queries aren't as good since it will still need to check most rows for if they're visible (see [covering indexes section](#covering-indexes) below)
+We end up with similar performance which makes sense since it didn't do an index only query. When there's a lot of dead rows/pages, index only queries aren't as good since it will still need to check most rows for if they're visible (see [covering indexes section](#covering-indexes) below)
 
- Let's run a vacuum now and also update the table settings to vacuum if more than 1% of the rows are dirty (the default is 20%).
+ Let's run a vacuum now and also update the table settings to vacuum if more than 1% of the rows are dead (the default is 20%).
 
 ```sql
 VACUUM cities
