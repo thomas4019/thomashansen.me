@@ -4,6 +4,9 @@
 <head>
   <meta charset="utf-8">
   <title>{{ page.title | default(value=config.title) }}</title>
+  {% if page.extra.image %}
+  <meta property="og:image" content="{{ page.extra.image | safe }}" />
+  {% endif %}
   <style>
     body {
       background-color: #fbfbfb;

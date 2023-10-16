@@ -2,6 +2,8 @@
 title = "Choosing a backend database: SQL vs Document vs Columnar"
 date = 2023-10-15
 page_template = "blog-page.html"
+[extra]
+image = "https://www.thomashansen.me/images/dbs_venn_diagram.png"
 +++
 
 There's a bunch of different databases once can choose and overtime as features have been added they seem more similar. Here's a venn diagram showing which features are shared and which are unique.
