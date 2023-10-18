@@ -20,6 +20,18 @@
     pre.language-sql {
       padding: 10px;
     }
+    table {
+      border-collapse: collapse;
+    }
+    td, th {
+      border: thin solid black;
+      padding: 0.3rem;
+      padding-left: 0.5rem;
+    }
+    thead tr {
+      background-color: #F0F0F0;
+      text-align: left;
+    }
   </style>
 </head>
 
@@ -38,11 +50,31 @@
 <p><strong>Deep Document Model</strong>: Choose a document database for intricate document structures and partial updates.</p>
 <p><strong>Schema Flexibility</strong>: While the allure of schemalessness might steer you towards NoSQL, keep in mind that modern SQL databases offer JSON column support.</p>
 <p><strong>Write-Heavy Workloads</strong>: If your primary operation is writing and you require scalability, a columnar DB might be your best bet.</p>
-<p>Whether or not one uses a NoSQL database, many of the principles of NoSQL/document databases are helpful when designing an application. For example, ask yourself, how could I design a system where I wouldn’t need to use joins.</p>
-<h2 id="database-notes">Database notes</h2>
-<p><strong>MongoDB:</strong> Nice for prototyping since it's so easy to use without schemas. It's very easy to end up with inconsistent data over time since the DB doesn't enforce much and people often don't do proper data migrations. Large nested document structures is great for data locality.</p>
-<p><strong>PostgreSQL and MySQL:</strong> Over time, these have become more similar e.g. both allow adding columns without locking, json columns, common table expressions and unicode. Note: While there is a standard for SQL, no database adheres to it perfectly. As a result, your application may inherit quirks specific to the database you select.</p>
-<p><strong>DynamoDB:</strong> This is an Amazon proprietary DB. It's a cost effective option for write heavy workloads that you want to able to scale indefinitely.</p>
+<p>Whether or not one uses a NoSQL database, many of the principles of NoSQL/document databases are helpful when designing an application. For example, ask yourself, how could I design a system where I wouldn’t need to use joins (see <a href="https://www.thomashansen.me/blog/choosing-backend-database/#data-denormalization">Data Denormalization</a>)</p>
+<h2 id="mysql-vs-postgresql">MySQL vs PostgreSQL</h2>
+<p>Over time, these have become more similar e.g. both allow adding columns without locking, json columns, common table expressions and unicode. Note:</p>
+<p><strong>Compatibility</strong>: While there is a standard for SQL, no database adheres to it perfectly as a result applications over time often become dependant on the type of database. For example, Wordpress primarly only supports MySQL.</p>
+<p><strong>Data clustering:</strong> Both DBs stored data in groups called &quot;pages&quot; (typically 8 KB for Postgres and 16 KB for MySQL). MySQL stores row data together based on your primary key. Postgres stores row data together mostly based on insertion time. This will have different effects depending on your type of primary key.</p>
+<table><thead><tr><th>Primary Key Type</th><th>Performance Considerations</th></tr></thead><tbody>
+<tr><td>UUID</td><td>PostgreSQL ordering rows by insertion is likely to be more useful.</td></tr>
+<tr><td>sequential id</td><td>Performance will be similar</td></tr>
+<tr><td>compound key e.g. (user_id, group_id)</td><td>MySQL performance will likely be better, since related data is stored together.</td></tr>
+</tbody></table>
+<p>This means that if your primary key is a sequential id, the dbs effectively work the same. If your primary key is something else, like the compound key e.g. (user_id, timestamp), this can affect performance substantially.</p>
+<p><strong>Connection cost:</strong> With Postgres, each new connection spawns a new process which means there's a memory overhead of 5 to 10 MB per connection. Connections in MySQL don't use separate processes and so have much less overhead.</p>
+<p><strong>Licensing:</strong> MySQL has a more restrictive open source license. For SaaS usages though this doesn't matter. However, if you're creating an application that users will install locally and includes the db, then PostgreSQL's more permissive license may be important.</p>
+<p><strong>Row deletion:</strong> PostgreSQL does most updates by inserting a new row and for deletes it does not remove the data immediately, but rather just marks it as being no longer visible. To remain performant and save space, PostgreSQL needs to periodically cleanup the old rows, this process is called vacuuming.</p>
+<h2 id="data-denormalization">Data denormalization</h2>
+<p>These are principles designed for document DBs since they don't support joins, but these principles are equally relevant for optimizing SQL databases with read-heavy applications.</p>
+<p>The overall idea of denormalization is including data a single table that would have otherwise been split into multiple related tables or storing multiple copies of the same data. Here's some principles and then how they would apply when designing a schema for a movie database.</p>
+<p><strong>Avoid enum tables:</strong> Instead of making a <code>genre</code> table, you could just store the <code>genre_name</code> as text (or an enum type) in the <code>movie</code> table.</p>
+<p><strong>Avoid many-to-many tables:</strong> Instead of making a <code>movie_actors</code> table with a <code>movie_id</code> and <code>actor_id</code>, you could have an <code>actor_ids</code> column with an array type like <code>INT[]</code> (this is postgres specific)</p>
+<p><strong>Precompute aggregates:</strong> Instead of counting the number of oscar nominations an actor receieved, one can store an <code>oscar_nomination_count</code> in the <code>actors</code> table. This count would then need to be updated each time a new nomination is inserted.</p>
+<p>These principles increase data locality and rely on the principle that typical applications do much more reads than writes. So these make reads simpler while also make writes more complicated and slower, but since they're rarer this is a net win.</p>
+<h2 id="massively-scaling-up">Massively scaling up</h2>
+<p>One can <em>vertically scale</em> instances quite a lot these days with AWS for example supporting up to 128 vCPU individual instances, but that is still only so much.</p>
+<p><strong>Clustering:</strong> SQL and document DBS support setting up replica sets where you have one writer instance and many reader instances. This allows distributing your read load across multiple instances (as long as your application can tolerate eventual consistency.) This setup can also provide high availability if the cluster has automatic failover setup.</p>
+<p><strong>Sharding/partitioning:</strong> To scale the write load is more complicated. Cassandra and other columnar DBs supports this out of the box since every instance is a writer. Document DBs can be configured to store data in different instances based on some hash function. For SQL, a common approach is using special code which runs multiple copies of the DB and provides an interface in front to handle routing and joining data across shards (see <a href="https://vitess.io/">Vitess</a> for MySQL and <a href="https://www.citusdata.com/">Citus</a> for Postgres)</p>
 
 <hr>
 By <a href="https://github.com/thomas4019">Thomas Hansen</a>, published on 2023-10-15
