@@ -20,7 +20,7 @@ In the evolving landscape of databases, the lines distinguishing one type from a
 
 **Write-Heavy Workloads**: If your primary operation is writing and you require scalability, a columnar DB might be your best bet.
 
-Whether or not one uses a NoSQL database, many of the principles of NoSQL/document databases are helpful when designing an application. For example, ask yourself, how could I design a system where I wouldn’t need to use joins (see [Data Denormalization](#data-denormalization))
+Whether or not one uses a NoSQL database, many of the principles of NoSQL/document databases are helpful when designing an application. For example, ask yourself, how could I design a system where I wouldn’t need to use joins (see [Data Denormalization](#data-denormalization-principles))
 
 ## MySQL vs PostgreSQL
 
@@ -44,9 +44,9 @@ This means that if your primary key is a sequential id, the dbs effectively work
 
 **Row deletion:** PostgreSQL does most updates by inserting a new row and for deletes it does not remove the data immediately, but rather just marks it as being no longer visible. To remain performant and save space, PostgreSQL needs to periodically cleanup the old rows, this process is called vacuuming.
 
-## Data denormalization
+## Data denormalization principles
 
-These are principles designed for document DBs since they don't support joins, but these principles are equally relevant for optimizing SQL databases with read-heavy applications.
+Document DBs really benefit from denormalization since they don't support joins, but these principles are equally relevant for optimizing SQL databases with read-heavy applications.
 
 The overall idea of denormalization is including data a single table that would have otherwise been split into multiple related tables or storing multiple copies of the same data. Here's some principles and then how they would apply when designing a schema for a movie database.
 
@@ -54,7 +54,7 @@ The overall idea of denormalization is including data a single table that would 
 
 **Avoid many-to-many tables:** Instead of making a `movie_actors` table with a `movie_id` and `actor_id`, you could have an `actor_ids` column with an array type like `INT[]` (this is postgres specific)
 
-**Precompute aggregates:** Instead of counting the number of oscar nominations an actor receieved, one can store an `oscar_nomination_count` in the `actors` table. This count would then need to be updated each time a new nomination is inserted.
+**Precompute aggregates:** Instead of running a `count(*)` query to get the number of oscar nominations an actor receieved, store an `oscar_nomination_count` in the `actors` table. This count would then need to be updated each time a new nomination is inserted.
 
 These principles increase data locality and rely on the principle that typical applications do much more reads than writes. So these make reads simpler while also make writes more complicated and slower, but since they're rarer this is a net win.
 
