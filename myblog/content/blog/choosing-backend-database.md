@@ -10,6 +10,8 @@ In the evolving landscape of databases, the lines distinguishing one type from a
 
 ![Venn Diagram highlighting shared features among databases: All databases (ACID, Secondary Indexes, JSON), SQL & Columnar (schemas), SQL & Document (aggregate queries and unique indexes).](/images/dbs_venn_diagram.png)
 
+&ast; = Mongo added ACID support in version 4.0
+
 ## Guidelines
 
 **Join Queries**: Opt for SQL databases if relational data handling is crucial.
@@ -22,7 +24,21 @@ In the evolving landscape of databases, the lines distinguishing one type from a
 
 Whether or not one uses a NoSQL database, many of the principles of NoSQL/document databases are helpful when designing an application. For example, ask yourself, how could I design a system where I wouldn’t need to use joins (see [Data Denormalization](#data-denormalization-principles))
 
-## MySQL vs PostgreSQL
+## Massively scaling up
+
+One can *vertically scale* instances quite a lot these days, for example AWS supports up to 128 vCPU individual instances, but that is still only so much.
+
+**Clustering:** SQL and document DBS support setting up replica sets where you have one writer instance and many reader instances. This allows distributing your read load across multiple instances (as long as your application can tolerate eventual consistency.) This setup can also provide high availability if the cluster has automatic failover setup.
+
+**Sharding/partitioning:** Scaling a heavy write load is more complicated. Cassandra and other columnar DBs supports this out of the box since every instance is a writer. Document DBs can be configured to store data in different instances based on some hash function. For SQL, a common approach is using code which runs multiple copies of the DB and provides an interface in front to handle routing and joining data across shards (see [Vitess](https://vitess.io/) for MySQL and [Citus](https://www.citusdata.com/) for Postgres)
+
+## Conclusion
+
+Examine the features listed in the Venn Diagram and see if any are essential for your project. For many use cases, any database will work, but these databases do have details that become important for large projects. Once costs start to become a concern, I think engineers should become familiar with the database internals, since using each database in an ideal way based on how it was designed can lead to substantial efficiency improvements.
+
+## Other Considerations
+
+### MySQL vs PostgreSQL
 
 Over time, these have become more similar e.g. both allow adding columns without locking, json columns, common table expressions and unicode. Note:  
 
@@ -44,7 +60,7 @@ This means that if your primary key is a sequential id, the dbs effectively work
 
 **Row deletion:** PostgreSQL does most updates by inserting a new row and for deletes it does not remove the data immediately, but rather just marks it as being no longer visible. To remain performant and save space, PostgreSQL needs to periodically cleanup the old rows, this process is called vacuuming.
 
-## Data denormalization principles
+### Data denormalization principles
 
 Document DBs really benefit from denormalization since they don't support joins, but these principles are equally relevant for optimizing SQL databases with read-heavy applications.
 
@@ -57,11 +73,3 @@ The overall idea of denormalization is including data a single table that would 
 **Precompute aggregates:** Instead of running a `count(*)` query to get the number of oscar nominations an actor receieved, store an `oscar_nomination_count` in the `actors` table. This count would then need to be updated each time a new nomination is inserted.
 
 These principles increase data locality and rely on the principle that typical applications do much more reads than writes. So these make reads simpler while also make writes more complicated and slower, but since they're rarer this is a net win.
-
-## Massively scaling up
-
-One can *vertically scale* instances quite a lot these days with AWS for example supporting up to 128 vCPU individual instances, but that is still only so much.
-
-**Clustering:** SQL and document DBS support setting up replica sets where you have one writer instance and many reader instances. This allows distributing your read load across multiple instances (as long as your application can tolerate eventual consistency.) This setup can also provide high availability if the cluster has automatic failover setup.
-
-**Sharding/partitioning:** To scale the write load is more complicated. Cassandra and other columnar DBs supports this out of the box since every instance is a writer. Document DBs can be configured to store data in different instances based on some hash function. For SQL, a common approach is using special code which runs multiple copies of the DB and provides an interface in front to handle routing and joining data across shards (see [Vitess](https://vitess.io/) for MySQL and [Citus](https://www.citusdata.com/) for Postgres)
