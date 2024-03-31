@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>Optimizing Read Queries in PostgreSQL: A Step-by-Step Guide</title>
+  
   <style>
     body {
       background-color: #fbfbfb;
@@ -17,7 +18,27 @@
     pre.language-sql {
       padding: 10px;
     }
+    table {
+      border-collapse: collapse;
+    }
+    td, th {
+      border: thin solid black;
+      padding: 0.3rem;
+      padding-left: 0.5rem;
+    }
+    thead tr {
+      background-color: #F0F0F0;
+      text-align: left;
+    }
   </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S6WD1J2D5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-0S6WD1J2D5');
+  </script>
 </head>
 
 <body>
@@ -27,42 +48,6 @@
 <h1 class="title">
   Optimizing Read Queries in PostgreSQL: A Step-by-Step Guide
 </h1>
-
-
-    <ul>
-    
-        <li>
-            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#main-steps">Main Steps</a>
-            
-        </li>
-    
-        <li>
-            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#example-walkthrough">Example Walkthrough</a>
-            
-        </li>
-    
-        <li>
-            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#finding-your-queries-that-are-using-the-most-cpu-heavy-queries">Finding your queries that are using the most CPU (heavy queries)</a>
-            
-        </li>
-    
-        <li>
-            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#covering-indexes">Covering indexes</a>
-            
-        </li>
-    
-        <li>
-            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#conclusion">Conclusion</a>
-            
-        </li>
-    
-        <li>
-            <a href="https://www.thomashansen.me/blog/optimizing-postgres-reads/#more-advanced-follow-ups-to-come">More advanced follow ups to come</a>
-            
-        </li>
-    
-    </ul>
-
 
 <p>In a previous role, I honed my skills in optimizing PostgreSQL read queries. The result? A whopping 50% reduction in database costs and, in certain services, I eliminated the need for Redis caching of query results.</p>
 <p>This post is mostly relevant to those with heavy read query load where multiple records are returned in each query on tables that also get frequent updates or deletes.</p>
