@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="./assets/index-BXO68Ck7.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BekNHBuq.css">
+    <script type="module" crossorigin src="./assets/index-WYhWHy_M.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DjfaD_o8.css">
   </head>
   <body>
     <div class="app">
@@ -23,10 +23,9 @@
         <h1 class="title">Income Tax Visualizer</h1>
         <p class="lede">
           This visual is designed to make federal taxes feel easier to understand. As you move through
-          different income levels, filing statuses, retirement contributions, and credits, the chart
+          different income levels, filing statuses, retirement contributions, and credits, this chart
           shows how your taxes change, what shapes those changes, and how those choices affect your
-          take-home pay. The goal is to turn tax brackets and deductions from something abstract into
-          something you can see, compare, and explore.
+          take-home pay.
         </p>
       </header>
 
@@ -37,7 +36,7 @@
 
         <aside class="controls-panel" aria-label="Inputs and summary">
           <div class="control-block">
-            <label class="control-label" for="income-slider">Income</label>
+            <label class="control-label" for="income-slider">Annual gross income</label>
             <div class="slider-row">
               <input
                 type="range"
@@ -45,13 +44,12 @@
                 min="0"
                 max="1000"
                 step="1"
-                value="100"
+                value="225"
               />
               <output class="slider-value" id="income-slider-out" for="income-slider"
-                >$20,000</output
+                >$45,000</output
               >
             </div>
-            <p class="hint" id="income-range-hint">$0 — $600,000</p>
           </div>
 
           <div class="control-block">
