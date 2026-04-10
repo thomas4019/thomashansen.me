@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Understand Your Taxes | Income Tax Visualizer</title>
+    <meta
+      name="description"
+      content="Explore how income, deductions, retirement contributions, and credits change your taxes so you can better understand what you owe and why it changes."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="/assets/index-wN_yLzVA.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BekNHBuq.css">
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1 class="title">Income Tax Visualizer</h1>
+        <p class="lede">
+          This visual is designed to make federal taxes feel easier to understand. As you move through
+          different income levels, filing statuses, retirement contributions, and credits, the chart
+          shows how your taxes change, what shapes those changes, and how those choices affect your
+          take-home pay. The goal is to turn tax brackets and deductions from something abstract into
+          something you can see, compare, and explore.
+        </p>
+      </header>
+
+      <main class="main">
+        <section class="viz" aria-label="Tax road visualization">
+          <canvas id="road-canvas" width="1200" height="520"></canvas>
+        </section>
+
+        <aside class="controls-panel" aria-label="Inputs and summary">
+          <div class="control-block">
+            <label class="control-label" for="income-slider">Income</label>
+            <div class="slider-row">
+              <input
+                type="range"
+                id="income-slider"
+                min="0"
+                max="1000"
+                step="1"
+                value="100"
+              />
+              <output class="slider-value" id="income-slider-out" for="income-slider"
+                >$20,000</output
+              >
+            </div>
+            <p class="hint" id="income-range-hint">$0 — $600,000</p>
+          </div>
+
+          <div class="control-block">
+            <span class="control-label" id="filing-label">Filing status</span>
+            <div class="segmented" role="group" aria-labelledby="filing-label">
+              <button type="button" class="seg-btn is-active" data-status="single" aria-pressed="true">
+                Single
+              </button>
+              <button type="button" class="seg-btn" data-status="mfj" aria-pressed="false">
+                Married filing jointly
+              </button>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <span class="control-label" id="ret-label">Traditional 401(k) / IRA</span>
+            <div class="segmented segmented--compact" role="group" aria-labelledby="ret-label">
+              <button type="button" class="seg-btn is-active" data-ret="none" aria-pressed="true">
+                None
+              </button>
+              <button type="button" class="seg-btn" data-ret="pct10" aria-pressed="false">
+                10%
+              </button>
+              <button type="button" class="seg-btn" data-ret="max" aria-pressed="false">
+                <span id="ret-max-label">Max</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <label class="control-label" for="children-select">Qualifying children (under 17, CTC)</label>
+            <select id="children-select" class="select-input" aria-describedby="children-hint">
+              <option value="0" selected>0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+
+          <div class="dashboard" aria-live="polite">
+            <h2 class="dashboard-title">Summary</h2>
+            <dl class="metrics">
+              <div class="metric">
+                <dt>Effective tax rate</dt>
+                <dd id="m-effective">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-trad">
+                <dt>Traditional 401(k) / IRA</dt>
+                <dd id="m-trad">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-tax-before">
+                <dt>Income tax (before credits)</dt>
+                <dd id="m-tax-before">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-ctc">
+                <dt>Child tax credit</dt>
+                <dd id="m-ctc">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-savers">
+                <dt>Saver’s credit</dt>
+                <dd id="m-savers">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Income tax (after credits)</dt>
+                <dd id="m-tax">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Social Security tax</dt>
+                <dd id="m-social-security">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Medicare tax</dt>
+                <dd id="m-medicare">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Take-home</dt>
+                <dd id="m-takehome">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Marginal rate</dt>
+                <dd id="m-marginal">—</dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+      </main>
+
+      <footer class="footer">
+        <p>
+          Educational visualization. Uses IRS
+          <a href="https://www.irs.gov/filing/federal-income-tax-rates-and-brackets"
+            >2025 federal ordinary income brackets</a
+          >
+          (tax year 2025). Child Tax Credit and Saver’s Credit are simplified here. Includes employee
+          Social Security and Medicare taxes, but not employer payroll tax or state tax.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
