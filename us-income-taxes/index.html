@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Understand Your Taxes | Income Tax Visualizer</title>
+    <title>Understand Your Taxes | Utah & Federal Tax Visualizer</title>
     <meta
       name="description"
-      content="Explore how income, deductions, retirement contributions, and credits change your taxes so you can better understand what you owe and why it changes."
+      content="Explore 2025 federal marginal tax rates across income, with a stacked view of Social Security, Medicare, Utah and federal taxes, and take-home pay."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,27 +14,99 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="./assets/index-WYhWHy_M.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DjfaD_o8.css">
+    <script type="module" crossorigin src="./assets/index-Dk14dO2a.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-7Qrdk1t6.css">
   </head>
   <body>
     <div class="app">
       <header class="header">
-        <h1 class="title">Income Tax Visualizer</h1>
+        <h1 class="title">Utah &amp; Federal Tax Visualizer</h1>
         <p class="lede">
-          This visual is designed to make federal taxes feel easier to understand. As you move through
-          different income levels, filing statuses, retirement contributions, and credits, this chart
-          shows how your taxes change, what shapes those changes, and how those choices affect your
-          take-home pay.
+          Adjust income, filing status, retirement contributions, and credits to see how
+          tax rates change.
+          Amounts use simplified 2025 rules for education—not individualized tax advice.
         </p>
       </header>
 
       <main class="main">
-        <section class="viz" aria-label="Tax road visualization">
-          <canvas id="road-canvas" width="1200" height="520"></canvas>
+        <section
+          class="viz viz--column"
+          aria-label="Federal marginal rate map, stacked income allocation, and tax summary"
+        >
+          <div class="marginal-map-wrap">
+            <h2 class="chart-viz__title" id="marginal-map-title">
+              Federal marginal rate on the next dollar of gross income
+            </h2>
+            <canvas id="marginal-rate-canvas" width="1200" height="272" aria-labelledby="marginal-map-title"></canvas>
+          </div>
+
+          <div class="stacked-wrap">
+            <h2 class="chart-viz__title" id="stacked-chart-title">How your annual gross income is allocated</h2>
+            <canvas
+              id="tax-chart-canvas"
+              width="1200"
+              height="300"
+              aria-labelledby="stacked-chart-title"
+            ></canvas>
+          </div>
+
+          <section class="summary-panel" id="summary-panel" aria-label="Tax summary" aria-live="polite">
+            <dl class="metrics">
+              <div class="metric">
+                <dt>Effective tax rate (all taxes)</dt>
+                <dd class="metric__value" id="m-effective">—</dd>
+                <dd class="metric__delta" id="d-effective">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-trad">
+                <dt>Traditional 401(k) / IRA</dt>
+                <dd class="metric__value" id="m-trad">—</dd>
+                <dd class="metric__delta" id="d-trad">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-tax-before">
+                <dt>Income tax (before credits)</dt>
+                <dd class="metric__value" id="m-tax-before">—</dd>
+                <dd class="metric__delta" id="d-tax-before">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-ctc">
+                <dt>Child tax credit</dt>
+                <dd class="metric__value" id="m-ctc">—</dd>
+                <dd class="metric__delta" id="d-ctc">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-savers">
+                <dt>Saver’s credit</dt>
+                <dd class="metric__value" id="m-savers">—</dd>
+                <dd class="metric__delta" id="d-savers">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Federal tax</dt>
+                <dd class="metric__value" id="m-tax">—</dd>
+                <dd class="metric__delta" id="d-tax">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Social Security &amp; Medicare</dt>
+                <dd class="metric__value" id="m-payroll">—</dd>
+                <dd class="metric__delta" id="d-payroll">—</dd>
+              </div>
+              <div class="metric is-hidden" id="metric-utah-tp">
+                <dt>Utah taxpayer credit</dt>
+                <dd class="metric__value" id="m-utah-tp">—</dd>
+                <dd class="metric__delta" id="d-utah-tp">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Utah income tax</dt>
+                <dd class="metric__value" id="m-utah">—</dd>
+                <dd class="metric__delta" id="d-utah">—</dd>
+              </div>
+              <div class="metric">
+                <dt>Take-home</dt>
+                <dd class="metric__value" id="m-takehome">—</dd>
+                <dd class="metric__delta" id="d-takehome">—</dd>
+              </div>
+            </dl>
+          </section>
         </section>
 
-        <aside class="controls-panel" aria-label="Inputs and summary">
+        <aside class="controls-panel" aria-label="Tax inputs">
           <div class="control-block">
             <label class="control-label" for="income-slider">Annual gross income</label>
             <div class="slider-row">
@@ -65,18 +137,24 @@
           </div>
 
           <div class="control-block">
-            <span class="control-label" id="ret-label">Traditional 401(k) / IRA</span>
-            <div class="segmented segmented--compact" role="group" aria-labelledby="ret-label">
-              <button type="button" class="seg-btn is-active" data-ret="none" aria-pressed="true">
-                None
-              </button>
-              <button type="button" class="seg-btn" data-ret="pct10" aria-pressed="false">
-                10%
-              </button>
-              <button type="button" class="seg-btn" data-ret="max" aria-pressed="false">
-                <span id="ret-max-label">Max</span>
-              </button>
+            <label class="control-label" for="deferral-slider">Traditional 401(k) / IRA</label>
+            <div class="slider-row">
+              <input
+                type="range"
+                id="deferral-slider"
+                min="0"
+                max="23500"
+                step="100"
+                value="0"
+                aria-valuemin="0"
+                aria-valuemax="23500"
+                aria-describedby="deferral-hint"
+              />
+              <output class="slider-value" id="deferral-slider-out" for="deferral-slider">$0</output>
             </div>
+            <p class="hint hint--tight" id="deferral-hint">
+              2025 elective deferral limit <span id="deferral-limit-label">$23,500</span>
+            </p>
           </div>
 
           <div class="control-block">
@@ -90,63 +168,20 @@
               <option value="5">5</option>
             </select>
           </div>
-
-          <div class="dashboard" aria-live="polite">
-            <h2 class="dashboard-title">Summary</h2>
-            <dl class="metrics">
-              <div class="metric">
-                <dt>Effective tax rate</dt>
-                <dd id="m-effective">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-trad">
-                <dt>Traditional 401(k) / IRA</dt>
-                <dd id="m-trad">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-tax-before">
-                <dt>Income tax (before credits)</dt>
-                <dd id="m-tax-before">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-ctc">
-                <dt>Child tax credit</dt>
-                <dd id="m-ctc">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-savers">
-                <dt>Saver’s credit</dt>
-                <dd id="m-savers">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Income tax (after credits)</dt>
-                <dd id="m-tax">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Social Security tax</dt>
-                <dd id="m-social-security">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Medicare tax</dt>
-                <dd id="m-medicare">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Take-home</dt>
-                <dd id="m-takehome">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Marginal rate</dt>
-                <dd id="m-marginal">—</dd>
-              </div>
-            </dl>
-          </div>
         </aside>
       </main>
 
       <footer class="footer">
         <p>
-          Educational visualization. Uses IRS
+          Educational visualization. Federal tax uses IRS
           <a href="https://www.irs.gov/filing/federal-income-tax-rates-and-brackets"
-            >2025 federal ordinary income brackets</a
-          >
-          (tax year 2025). Child Tax Credit and Saver’s Credit are simplified here. Includes employee
-          Social Security and Medicare taxes, but not employer payroll tax or state tax.
+            >2025 ordinary income brackets</a
+          >; Child Tax Credit and Saver’s Credit are simplified. Utah uses the
+          <a href="https://incometax.utah.gov/file-pay/tax-rates/">2025 flat 4.5% rate</a> on
+          simplified taxable income, less the
+          <a href="https://incometax.utah.gov/tax-credits/">taxpayer credit</a>
+          (D×6% − phase-out; dependents via qualifying children). Other Utah adjustments are not modeled. Includes
+          employee Social Security and Medicare only—not employer payroll tax.
         </p>
       </footer>
     </div>
