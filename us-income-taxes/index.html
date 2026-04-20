@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="./assets/index-Dk14dO2a.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-7Qrdk1t6.css">
+    <script type="module" crossorigin src="./assets/index-D_leMuHU.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-vM0zkVqd.css">
   </head>
   <body>
     <div class="app">
@@ -45,7 +45,7 @@
             <canvas
               id="tax-chart-canvas"
               width="1200"
-              height="300"
+              height="232"
               aria-labelledby="stacked-chart-title"
             ></canvas>
           </div>
@@ -53,12 +53,12 @@
           <section class="summary-panel" id="summary-panel" aria-label="Tax summary" aria-live="polite">
             <dl class="metrics">
               <div class="metric">
-                <dt>Effective tax rate (all taxes)</dt>
+                <dt>Effective total tax rate</dt>
                 <dd class="metric__value" id="m-effective">—</dd>
                 <dd class="metric__delta" id="d-effective">—</dd>
               </div>
               <div class="metric is-hidden" id="metric-trad">
-                <dt>Traditional 401(k) / IRA</dt>
+                <dt id="metric-trad-dt">Trad 401(k)</dt>
                 <dd class="metric__value" id="m-trad">—</dd>
                 <dd class="metric__delta" id="d-trad">—</dd>
               </div>
@@ -106,39 +106,90 @@
           </section>
         </section>
 
-        <aside class="controls-panel" aria-label="Tax inputs">
-          <div class="control-block">
-            <label class="control-label" for="income-slider">Annual gross income</label>
-            <div class="slider-row">
-              <input
-                type="range"
-                id="income-slider"
-                min="0"
-                max="1000"
-                step="1"
-                value="225"
-              />
-              <output class="slider-value" id="income-slider-out" for="income-slider"
-                >$45,000</output
-              >
+        <aside class="controls-rail controls-panel" aria-label="Tax inputs">
+          <div class="controls-primary">
+            <div class="control-block">
+              <label class="control-label" for="income-slider">Annual gross income</label>
+              <div class="slider-row slider-row--touch">
+                <input
+                  type="range"
+                  id="income-slider"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  value="225"
+                />
+                <output class="slider-value" id="income-slider-out" for="income-slider"
+                  >$45,000</output
+                >
+              </div>
+            </div>
+
+            <div class="control-block">
+              <span class="control-label" id="filing-label">Filing status</span>
+              <div class="segmented" role="group" aria-labelledby="filing-label">
+                <button type="button" class="seg-btn is-active" data-status="single" aria-pressed="true">
+                  Single
+                </button>
+                <button type="button" class="seg-btn" data-status="mfj" aria-pressed="false">
+                  Married filing jointly
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="control-block">
-            <span class="control-label" id="filing-label">Filing status</span>
-            <div class="segmented" role="group" aria-labelledby="filing-label">
-              <button type="button" class="seg-btn is-active" data-status="single" aria-pressed="true">
-                Single
-              </button>
-              <button type="button" class="seg-btn" data-status="mfj" aria-pressed="false">
-                Married filing jointly
-              </button>
+          <div class="controls-secondary">
+            <div class="control-block">
+              <div class="deferral-head">
+              <label class="control-label deferral-head__label" for="deferral-slider">Retirement deferral</label>
+              <div class="deferral-head__right">
+                <div class="mini-seg" role="group" aria-label="Pre-tax traditional vs Roth">
+                  <button
+                    type="button"
+                    class="mini-seg__btn is-active"
+                    data-deferral-type="traditional"
+                    aria-pressed="true"
+                  >
+                    Trad
+                  </button>
+                  <button type="button" class="mini-seg__btn" data-deferral-type="roth" aria-pressed="false">
+                    Roth
+                  </button>
+                </div>
+                <div class="deferral-help-wrap">
+                  <button
+                    type="button"
+                    class="deferral-help"
+                    aria-describedby="deferral-roth-tip"
+                    aria-label="About 401(k) traditional vs Roth deferrals"
+                  >
+                    <span aria-hidden="true">?</span>
+                  </button>
+                  <div id="deferral-roth-tip" class="deferral-help__tooltip" role="tooltip">
+                    <p>
+                      A 401(k) is an employer-sponsored retirement account that lets you invest pre- or post-tax
+                      dollars with tax advantages. Money grows tax-free while it's in the account.
+                    </p>
+                    <p>
+                      For <strong>2025</strong>, the IRS elective deferral limit used on the slider below is
+                      <span id="deferral-limit-label">$23,500</span>.
+                    </p>
+                    <p><strong>The core tradeoff between the two types</strong></p>
+                    <p>
+                      <strong>Traditional (pre-tax):</strong> You contribute before taxes, lowering your taxable
+                      income now. You pay taxes when you withdraw in retirement. Better if you expect to be in a lower
+                      tax bracket later.
+                    </p>
+                    <p>
+                      <strong>Roth (post-tax):</strong> You contribute after taxes, so no upfront benefit. But
+                      withdrawals in retirement are completely tax-free. Better if you expect to be in a higher
+                      bracket later — or just want tax-free income in retirement.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div class="control-block">
-            <label class="control-label" for="deferral-slider">Traditional 401(k) / IRA</label>
-            <div class="slider-row">
+            <div class="slider-row slider-row--touch">
               <input
                 type="range"
                 id="deferral-slider"
@@ -148,13 +199,9 @@
                 value="0"
                 aria-valuemin="0"
                 aria-valuemax="23500"
-                aria-describedby="deferral-hint"
               />
               <output class="slider-value" id="deferral-slider-out" for="deferral-slider">$0</output>
             </div>
-            <p class="hint hint--tight" id="deferral-hint">
-              2025 elective deferral limit <span id="deferral-limit-label">$23,500</span>
-            </p>
           </div>
 
           <div class="control-block">
@@ -167,6 +214,7 @@
               <option value="4">4</option>
               <option value="5">5</option>
             </select>
+          </div>
           </div>
         </aside>
       </main>
