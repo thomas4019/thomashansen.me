@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="./assets/index-PQn54D-j.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BOUWEdiV.css">
+    <script type="module" crossorigin src="./assets/index-B8bweFA3.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BY2Z7Jsg.css">
   </head>
   <body>
     <div class="app">
@@ -42,8 +42,11 @@
 
           <section class="summary-panel summary-panel--hero" id="summary-panel" aria-label="Tax summary" aria-live="polite">
             <div class="summary-hero">
-              <p class="summary-hero__label">You'd take home</p>
-              <p class="summary-hero__value" id="m-takehome">—</p>
+              <p class="summary-hero__label">You'd take home each month</p>
+              <div class="summary-hero__value-row">
+                <p class="summary-hero__value" id="m-takehome">—</p>
+                <span class="summary-hero__value-diff" id="m-takehome-diff" hidden aria-hidden="true"></span>
+              </div>
               <p class="summary-hero__per-check" id="m-takehome-per-check" hidden></p>
               <dl class="summary-hero__rates">
                 <div class="summary-hero__rate">
@@ -159,13 +162,14 @@
               <div class="control-block">
                 <label class="control-label" for="state-select">State</label>
                 <select id="state-select" class="select-input">
-                  <option value="ut" selected>Utah</option>
+                  <option value="az">Arizona</option>
                   <option value="ca">California</option>
                   <option value="id">Idaho</option>
                   <option value="nv">Nevada</option>
                   <option value="ny">New York</option>
                   <option value="or">Oregon</option>
                   <option value="tx">Texas</option>
+                  <option value="ut" selected>Utah</option>
                   <option value="wa">Washington</option>
                 </select>
               </div>
@@ -398,7 +402,7 @@
           <a href="https://www.irs.gov/filing/federal-income-tax-rates-and-brackets"
             >2025 ordinary income brackets</a
           >; Child Tax Credit includes non-refundable credit and income phase-out only (not the refundable
-          additional child tax credit). Saver’s Credit is simplified. State tax: Utah (4.5% flat + taxpayer credit phase-out), California (2025 brackets + 1% mental health surtax + exemption credits), Idaho (5.3% flat with small zero bracket), New York (2025 state brackets), Oregon (2025 brackets + federal tax subtraction + exemption credit), Nevada/Texas/Washington (no state income tax). Long-term capital gains use
+          additional child tax credit). Saver’s Credit is simplified. State tax: Utah (4.5% flat + taxpayer credit phase-out), California (2025 brackets + 1% mental health surtax + exemption credits), Idaho (5.3% flat with small zero bracket), New York (2025 state brackets), Oregon (2025 brackets + federal tax subtraction + exemption credit), Arizona (2.5% flat + 25% LTCG subtraction), Nevada/Texas/Washington (no state income tax). Long-term capital gains use
           <a href="https://www.irs.gov/taxtopics/tc409">2025 preferential federal rates</a> (0% / 15% / 20%)
           stacked on ordinary taxable income. Net capital losses offset up to
           $3,000 of ordinary income per year (carryforward shown, not modeled further). The allocation chart reflects
