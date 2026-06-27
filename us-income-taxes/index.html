@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Understand Your Taxes | Utah & Federal Tax Visualizer</title>
+    <title>Understand Your Taxes | State & Federal Tax Visualizer</title>
     <meta
       name="description"
-      content="Explore 2025 federal marginal tax rates across income, with a stacked view of Social Security, Medicare, Utah and federal taxes, and take-home pay."
+      content="Explore 2025 federal and state marginal tax rates across income, with a stacked view of Social Security, Medicare, state and federal taxes, and take-home pay."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,96 +14,115 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="./assets/index-D_leMuHU.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-vM0zkVqd.css">
+    <script type="module" crossorigin src="./assets/index-PQn54D-j.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BOUWEdiV.css">
   </head>
   <body>
     <div class="app">
       <header class="header">
-        <h1 class="title">Utah &amp; Federal Tax Visualizer</h1>
+        <h1 class="title">State &amp; Federal Tax Visualizer</h1>
         <p class="lede">
-          Adjust income, filing status, retirement contributions, and credits to see how
-          tax rates change.
-          Amounts use simplified 2025 rules for education—not individualized tax advice.
+          Slide income and filing status to see where your money goes—simplified 2025 rules for learning, not tax advice.
         </p>
       </header>
 
       <main class="main">
         <section
           class="viz viz--column"
-          aria-label="Federal marginal rate map, stacked income allocation, and tax summary"
+          aria-label="Income allocation, tax summary, and bracket details"
         >
-          <div class="marginal-map-wrap">
-            <h2 class="chart-viz__title" id="marginal-map-title">
-              Federal marginal rate on the next dollar of gross income
-            </h2>
-            <canvas id="marginal-rate-canvas" width="1200" height="272" aria-labelledby="marginal-map-title"></canvas>
-          </div>
-
-          <div class="stacked-wrap">
-            <h2 class="chart-viz__title" id="stacked-chart-title">How your annual gross income is allocated</h2>
+          <div class="stacked-wrap allocation-wrap">
             <canvas
               id="tax-chart-canvas"
               width="1200"
-              height="232"
-              aria-labelledby="stacked-chart-title"
+              height="300"
+              aria-label="Where your income goes"
             ></canvas>
           </div>
 
-          <section class="summary-panel" id="summary-panel" aria-label="Tax summary" aria-live="polite">
-            <dl class="metrics">
-              <div class="metric">
-                <dt>Effective total tax rate</dt>
-                <dd class="metric__value" id="m-effective">—</dd>
-                <dd class="metric__delta" id="d-effective">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-trad">
-                <dt id="metric-trad-dt">Trad 401(k)</dt>
-                <dd class="metric__value" id="m-trad">—</dd>
-                <dd class="metric__delta" id="d-trad">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-tax-before">
-                <dt>Income tax (before credits)</dt>
-                <dd class="metric__value" id="m-tax-before">—</dd>
-                <dd class="metric__delta" id="d-tax-before">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-ctc">
-                <dt>Child tax credit</dt>
-                <dd class="metric__value" id="m-ctc">—</dd>
-                <dd class="metric__delta" id="d-ctc">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-savers">
-                <dt>Saver’s credit</dt>
-                <dd class="metric__value" id="m-savers">—</dd>
-                <dd class="metric__delta" id="d-savers">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Federal tax</dt>
-                <dd class="metric__value" id="m-tax">—</dd>
-                <dd class="metric__delta" id="d-tax">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Social Security &amp; Medicare</dt>
-                <dd class="metric__value" id="m-payroll">—</dd>
-                <dd class="metric__delta" id="d-payroll">—</dd>
-              </div>
-              <div class="metric is-hidden" id="metric-utah-tp">
-                <dt>Utah taxpayer credit</dt>
-                <dd class="metric__value" id="m-utah-tp">—</dd>
-                <dd class="metric__delta" id="d-utah-tp">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Utah income tax</dt>
-                <dd class="metric__value" id="m-utah">—</dd>
-                <dd class="metric__delta" id="d-utah">—</dd>
-              </div>
-              <div class="metric">
-                <dt>Take-home</dt>
-                <dd class="metric__value" id="m-takehome">—</dd>
-                <dd class="metric__delta" id="d-takehome">—</dd>
-              </div>
-            </dl>
+          <section class="summary-panel summary-panel--hero" id="summary-panel" aria-label="Tax summary" aria-live="polite">
+            <div class="summary-hero">
+              <p class="summary-hero__label">You'd take home</p>
+              <p class="summary-hero__value" id="m-takehome">—</p>
+              <p class="summary-hero__per-check" id="m-takehome-per-check" hidden></p>
+              <dl class="summary-hero__rates">
+                <div class="summary-hero__rate">
+                  <dt>Effective total tax</dt>
+                  <dd id="m-effective">—</dd>
+                </div>
+                <div class="summary-hero__rate summary-hero__rate--marginal" id="metric-marginal">
+                  <div class="metric__term-row">
+                    <dt>On your next dollar</dt>
+                    <div class="deferral-help-wrap summary-metric-help-wrap">
+                      <button
+                        type="button"
+                        class="deferral-help"
+                        id="marginal-metric-help-btn"
+                        aria-describedby="marginal-metric-tip"
+                        aria-label="How the marginal wage tax rate is calculated"
+                      >
+                        <span aria-hidden="true">?</span>
+                      </button>
+                    </div>
+                  </div>
+                  <dd id="m-marginal">—</dd>
+                  <div id="marginal-metric-tip" class="summary-metric-tooltip" role="tooltip"></div>
+                </div>
+              </dl>
+            </div>
+
+            <details class="viz-collapsible" id="tax-breakdown-details">
+              <summary class="viz-collapsible__summary">See every line item</summary>
+              <dl class="metrics metrics--details">
+                <div class="metric is-hidden" id="metric-trad">
+                  <dt id="metric-trad-dt">Trad 401(k)</dt>
+                  <dd class="metric__value" id="m-trad">—</dd>
+                </div>
+                <div class="metric is-hidden" id="metric-tax-before">
+                  <dt>Income tax (before credits)</dt>
+                  <dd class="metric__value" id="m-tax-before">—</dd>
+                </div>
+                <div class="metric is-hidden" id="metric-ctc">
+                  <dt>Child tax credit</dt>
+                  <dd class="metric__value" id="m-ctc">—</dd>
+                </div>
+                <div class="metric is-hidden" id="metric-savers">
+                  <dt>Saver’s credit</dt>
+                  <dd class="metric__value" id="m-savers">—</dd>
+                </div>
+                <div class="metric">
+                  <dt>Federal tax</dt>
+                  <dd class="metric__value" id="m-tax">—</dd>
+                </div>
+                <div class="metric">
+                  <dt>Social Security &amp; Medicare</dt>
+                  <dd class="metric__value" id="m-payroll">—</dd>
+                </div>
+                <div class="metric is-hidden" id="metric-state-credit">
+                  <dt id="metric-state-credit-dt">State taxpayer credit</dt>
+                  <dd class="metric__value" id="m-state-credit">—</dd>
+                </div>
+                <div class="metric">
+                  <dt id="m-state-tax-dt">State income tax</dt>
+                  <dd class="metric__value" id="m-state-tax">—</dd>
+                </div>
+              </dl>
+            </details>
           </section>
+
+          <details class="viz-collapsible viz-collapsible--chart" id="marginal-details">
+            <summary class="viz-collapsible__summary" id="combined-marginal-map-title">
+              Tax rate by bracket
+            </summary>
+            <div class="marginal-map-wrap combined-marginal-map-wrap">
+              <canvas
+                id="combined-marginal-rate-canvas"
+                width="1200"
+                height="210"
+                aria-labelledby="combined-marginal-map-title"
+              ></canvas>
+            </div>
+          </details>
         </section>
 
         <aside class="controls-rail controls-panel" aria-label="Tax inputs">
@@ -125,22 +144,83 @@
               </div>
             </div>
 
-            <div class="control-block">
-              <span class="control-label" id="filing-label">Filing status</span>
-              <div class="segmented" role="group" aria-labelledby="filing-label">
-                <button type="button" class="seg-btn is-active" data-status="single" aria-pressed="true">
-                  Single
-                </button>
-                <button type="button" class="seg-btn" data-status="mfj" aria-pressed="false">
-                  Married filing jointly
-                </button>
+            <div class="controls-primary__status-row">
+              <div class="control-block">
+                <span class="control-label" id="filing-label">Filing status</span>
+                <div class="segmented" role="group" aria-labelledby="filing-label">
+                  <button type="button" class="seg-btn is-active" data-status="single" aria-pressed="true">
+                    Single
+                  </button>
+                  <button type="button" class="seg-btn" data-status="mfj" aria-pressed="false">
+                    Married filing jointly
+                  </button>
+                </div>
+              </div>
+              <div class="control-block">
+                <label class="control-label" for="state-select">State</label>
+                <select id="state-select" class="select-input">
+                  <option value="ut" selected>Utah</option>
+                  <option value="ca">California</option>
+                  <option value="id">Idaho</option>
+                  <option value="nv">Nevada</option>
+                  <option value="ny">New York</option>
+                  <option value="or">Oregon</option>
+                  <option value="tx">Texas</option>
+                  <option value="wa">Washington</option>
+                </select>
               </div>
             </div>
           </div>
 
-          <div class="controls-secondary">
-            <div class="control-block">
-              <div class="deferral-head">
+          <details class="controls-more" id="controls-more">
+            <summary class="controls-more__summary">Retirement, credits &amp; capital gains</summary>
+            <div class="controls-tabs" data-controls-tabs>
+            <div class="controls-tabs__list" role="tablist" aria-label="Additional tax inputs">
+              <button
+                type="button"
+                class="controls-tabs__tab is-active"
+                role="tab"
+                id="controls-tab-retirement"
+                aria-selected="true"
+                aria-controls="controls-panel-retirement"
+                data-controls-tab="retirement"
+              >
+                Retirement
+              </button>
+              <button
+                type="button"
+                class="controls-tabs__tab"
+                role="tab"
+                id="controls-tab-ltcg"
+                aria-selected="false"
+                aria-controls="controls-panel-ltcg"
+                data-controls-tab="ltcg"
+                tabindex="-1"
+              >
+                Capital gains
+              </button>
+              <button
+                type="button"
+                class="controls-tabs__tab"
+                role="tab"
+                id="controls-tab-children"
+                aria-selected="false"
+                aria-controls="controls-panel-children"
+                data-controls-tab="children"
+                tabindex="-1"
+              >
+                Children
+              </button>
+            </div>
+
+            <div
+              class="controls-tabs__panel is-active"
+              role="tabpanel"
+              id="controls-panel-retirement"
+              aria-labelledby="controls-tab-retirement"
+            >
+              <div class="control-block">
+                <div class="deferral-head">
               <label class="control-label deferral-head__label" for="deferral-slider">Retirement deferral</label>
               <div class="deferral-head__right">
                 <div class="mini-seg" role="group" aria-label="Pre-tax traditional vs Roth">
@@ -201,36 +281,131 @@
                 aria-valuemax="23500"
               />
               <output class="slider-value" id="deferral-slider-out" for="deferral-slider">$0</output>
+                </div>
+                <div class="retirement-results" id="retirement-results" hidden>
+                  <dl class="retirement-results__metrics">
+                    <div class="retirement-results__row" id="retirement-row-fed" hidden>
+                      <dt>Federal tax savings</dt>
+                      <dd id="retirement-m-fed" class="retirement-results__value retirement-results__value--savings">—</dd>
+                    </div>
+                    <div class="retirement-results__row" id="retirement-row-state" hidden>
+                      <dt id="retirement-dt-state">State tax savings</dt>
+                      <dd id="retirement-m-state" class="retirement-results__value retirement-results__value--savings">—</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="control-block">
-            <label class="control-label" for="children-select">Qualifying children (under 17, CTC)</label>
-            <select id="children-select" class="select-input" aria-describedby="children-hint">
-              <option value="0" selected>0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-          </div>
+            <div
+              class="controls-tabs__panel"
+              role="tabpanel"
+              id="controls-panel-ltcg"
+              aria-labelledby="controls-tab-ltcg"
+              hidden
+            >
+              <div class="control-block">
+            <label class="control-label" for="ltcg-slider">Net long-term capital gain / loss</label>
+            <p class="control-hint" id="ltcg-hint">
+              Wages stay on the income slider above. Losses offset up to $3,000 of ordinary income per year.
+            </p>
+            <div class="slider-row slider-row--touch">
+              <input
+                type="range"
+                id="ltcg-slider"
+                min="0"
+                max="1000"
+                step="1"
+                value="500"
+                aria-describedby="ltcg-hint"
+              />
+              <output class="slider-value" id="ltcg-slider-out" for="ltcg-slider">$0</output>
+            </div>
+            <div class="ltcg-results" id="ltcg-results" hidden>
+              <div class="ltcg-results__highlight" id="ltcg-results-highlight">
+                <div class="ltcg-results__highlight-start">
+                  <div class="ltcg-results__highlight-heading">
+                    <span class="ltcg-results__highlight-label" id="ltcg-eff-label">Effective rate</span>
+                    <div class="deferral-help-wrap ltcg-eff-help-wrap">
+                      <button
+                        type="button"
+                        class="deferral-help"
+                        id="ltcg-eff-help-btn"
+                        aria-describedby="ltcg-eff-tip"
+                        aria-label="How the effective LTCG rate is calculated"
+                      >
+                        <span aria-hidden="true">?</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <span class="ltcg-results__highlight-value" id="ltcg-m-effective-rate">—</span>
+              </div>
+              <div id="ltcg-eff-tip" class="ltcg-eff-tooltip" role="tooltip"></div>
+              <dl class="ltcg-results__metrics">
+                <div class="ltcg-results__row" id="ltcg-row-fed">
+                  <dt id="ltcg-dt-fed">Federal tax</dt>
+                  <dd id="ltcg-m-fed" class="ltcg-results__value">—</dd>
+                </div>
+                <div class="ltcg-results__row" id="ltcg-row-state">
+                  <dt id="ltcg-dt-state">State tax</dt>
+                  <dd id="ltcg-m-state" class="ltcg-results__value">—</dd>
+                </div>
+                <div class="ltcg-results__row ltcg-results__row--secondary" id="ltcg-row-loss-offset" hidden>
+                  <dt>Loss vs ordinary income</dt>
+                  <dd id="ltcg-m-loss-offset">—</dd>
+                </div>
+                <div class="ltcg-results__row ltcg-results__row--secondary" id="ltcg-row-carryforward" hidden>
+                  <dt>Loss carryforward (unused)</dt>
+                  <dd id="ltcg-m-carryforward">—</dd>
+                </div>
+              </dl>
+              <p class="ltcg-results__note" id="ltcg-results-note"></p>
+            </div>
+              </div>
+            </div>
+
+            <div
+              class="controls-tabs__panel"
+              role="tabpanel"
+              id="controls-panel-children"
+              aria-labelledby="controls-tab-children"
+              hidden
+            >
+              <div class="control-block">
+                <label class="control-label" for="children-select">Qualifying children (under 17, CTC)</label>
+                <p class="control-hint" id="children-hint"></p>
+                <select id="children-select" class="select-input" aria-describedby="children-hint">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+            </div>
+            </div>
+          </details>
         </aside>
       </main>
 
       <footer class="footer">
-        <p>
+        <details class="footer-details">
+          <summary class="footer-details__summary">About this model</summary>
+          <p>
           Educational visualization. Federal tax uses IRS
           <a href="https://www.irs.gov/filing/federal-income-tax-rates-and-brackets"
             >2025 ordinary income brackets</a
-          >; Child Tax Credit and Saver’s Credit are simplified. Utah uses the
-          <a href="https://incometax.utah.gov/file-pay/tax-rates/">2025 flat 4.5% rate</a> on
-          simplified taxable income, less the
-          <a href="https://incometax.utah.gov/tax-credits/">taxpayer credit</a>
-          (D×6% − phase-out; dependents via qualifying children). Other Utah adjustments are not modeled. Includes
-          employee Social Security and Medicare only—not employer payroll tax.
-        </p>
+          >; Child Tax Credit includes non-refundable credit and income phase-out only (not the refundable
+          additional child tax credit). Saver’s Credit is simplified. State tax: Utah (4.5% flat + taxpayer credit phase-out), California (2025 brackets + 1% mental health surtax + exemption credits), Idaho (5.3% flat with small zero bracket), New York (2025 state brackets), Oregon (2025 brackets + federal tax subtraction + exemption credit), Nevada/Texas/Washington (no state income tax). Long-term capital gains use
+          <a href="https://www.irs.gov/taxtopics/tc409">2025 preferential federal rates</a> (0% / 15% / 20%)
+          stacked on ordinary taxable income. Net capital losses offset up to
+          $3,000 of ordinary income per year (carryforward shown, not modeled further). The allocation chart reflects
+          wages only. Includes employee Social Security and Medicare only—not
+          employer payroll tax.
+          </p>
+        </details>
       </footer>
     </div>
   </body>
