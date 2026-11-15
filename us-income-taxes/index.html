@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="./assets/index-C8467esj.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-mBfE_M3v.css">
+    <script type="module" crossorigin src="./assets/index-DS6rBWXG.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BGgzjEvH.css">
   </head>
   <body>
     <div class="app">
@@ -74,8 +74,18 @@
                 <ul class="next-dollar__parts" id="m-next-parts" aria-label="Next-dollar tax by type"></ul>
                 <ul class="next-dollar__notes" id="m-next-notes"></ul>
               </div>
-              <figure class="rate-map" id="rate-map">
-                <figcaption class="rate-map__title" id="rate-map-title">How each extra dollar is taxed</figcaption>
+              <figure class="rate-map help-block" id="rate-map" aria-labelledby="rate-map-title">
+                <div class="label-help rate-map__head">
+                  <span class="rate-map__title" id="rate-map-title">How each extra dollar is taxed</span>
+                  <div class="deferral-help-wrap">
+                    <button type="button" class="pill-btn" aria-describedby="bracket-tip">See brackets</button>
+                    <div
+                      id="bracket-tip"
+                      class="deferral-help__tooltip deferral-help__tooltip--start bracket-tip"
+                      role="tooltip"
+                    ></div>
+                  </div>
+                </div>
                 <div class="marginal-map-wrap">
                   <canvas
                     id="combined-marginal-rate-canvas"
@@ -104,9 +114,9 @@
 
         <aside class="controls-rail controls-panel" aria-label="Tax inputs">
           <div class="controls-primary">
-            <div class="control-block year-block">
-              <div class="year-head">
-                <span class="control-label year-head__label" id="year-label">Tax year</span>
+            <div class="control-block year-block help-block">
+              <div class="label-help">
+                <span class="control-label label-help__label" id="year-label">Tax year</span>
                 <div class="deferral-help-wrap">
                   <button
                     type="button"
@@ -173,8 +183,21 @@
               </div>
             </div>
 
-            <div class="control-block">
-              <label class="control-label" for="children-select">Children under 17</label>
+            <div class="control-block help-block">
+              <div class="label-help">
+                <label class="control-label label-help__label" for="children-select">Children under 17</label>
+                <div class="deferral-help-wrap">
+                  <button
+                    type="button"
+                    class="deferral-help"
+                    aria-label="About the Child Tax Credit"
+                    aria-describedby="children-hint"
+                  >
+                    <span aria-hidden="true">?</span>
+                  </button>
+                  <div id="children-hint" class="deferral-help__tooltip deferral-help__tooltip--start" role="tooltip"></div>
+                </div>
+              </div>
               <select id="children-select" class="select-input select-input--narrow" aria-describedby="children-hint">
                 <option value="0" selected>0</option>
                 <option value="1">1</option>
@@ -183,7 +206,6 @@
                 <option value="4">4</option>
                 <option value="5">5</option>
               </select>
-              <p class="control-hint" id="children-hint"></p>
             </div>
 
               <div class="control-block">
@@ -262,70 +284,34 @@
                   </dl>
                 </div>
               </div>
-          </div>
-
-          <details class="controls-more" id="controls-more">
-            <summary class="controls-more__summary">Capital gains</summary>
-              <div class="control-block">
-            <label class="control-label" for="ltcg-slider">Net long-term capital gain / loss</label>
-            <p class="control-hint" id="ltcg-hint">
-              Wages stay on the income slider above. Losses offset up to $3,000 of ordinary income per year.
-            </p>
-            <div class="slider-row slider-row--touch">
-              <input
-                type="range"
-                id="ltcg-slider"
-                min="0"
-                max="1000"
-                step="1"
-                value="500"
-                aria-describedby="ltcg-hint"
-              />
-              <output class="slider-value" id="ltcg-slider-out" for="ltcg-slider">$0</output>
-            </div>
-            <div class="ltcg-results" id="ltcg-results" hidden>
-              <div class="ltcg-results__highlight" id="ltcg-results-highlight">
-                <div class="ltcg-results__highlight-start">
-                  <div class="ltcg-results__highlight-heading">
-                    <span class="ltcg-results__highlight-label" id="ltcg-eff-label">Effective rate</span>
-                    <div class="deferral-help-wrap ltcg-eff-help-wrap">
-                      <button
-                        type="button"
-                        class="deferral-help"
-                        id="ltcg-eff-help-btn"
-                        aria-describedby="ltcg-eff-tip"
-                        aria-label="How the effective LTCG rate is calculated"
-                      >
-                        <span aria-hidden="true">?</span>
-                      </button>
-                    </div>
+            <div class="control-block help-block">
+              <div class="label-help">
+                <span class="control-label label-help__label" id="capital-loss-label">Investment losses</span>
+                <div class="deferral-help-wrap">
+                  <button
+                    type="button"
+                    class="deferral-help"
+                    aria-label="About the capital loss deduction"
+                    aria-describedby="capital-loss-tip"
+                  >
+                    <span aria-hidden="true">?</span>
+                  </button>
+                  <div id="capital-loss-tip" class="deferral-help__tooltip deferral-help__tooltip--start" role="tooltip">
+                    <p>
+                      If your investment losses for the year are bigger than your gains, up to $3,000 of the net loss
+                      comes off your ordinary income, lowering your tax like a pre-tax 401(k) contribution.
+                    </p>
+                    <p>Larger losses carry forward, so you can keep deducting $3,000 a year until they're used up.</p>
                   </div>
                 </div>
-                <span class="ltcg-results__highlight-value" id="ltcg-m-effective-rate">—</span>
               </div>
-              <div id="ltcg-eff-tip" class="ltcg-eff-tooltip" role="tooltip"></div>
-              <dl class="ltcg-results__metrics">
-                <div class="ltcg-results__row" id="ltcg-row-fed">
-                  <dt id="ltcg-dt-fed">Federal tax</dt>
-                  <dd id="ltcg-m-fed" class="ltcg-results__value">—</dd>
-                </div>
-                <div class="ltcg-results__row" id="ltcg-row-state">
-                  <dt id="ltcg-dt-state">State tax</dt>
-                  <dd id="ltcg-m-state" class="ltcg-results__value">—</dd>
-                </div>
-                <div class="ltcg-results__row ltcg-results__row--secondary" id="ltcg-row-loss-offset" hidden>
-                  <dt>Loss vs ordinary income</dt>
-                  <dd id="ltcg-m-loss-offset">—</dd>
-                </div>
-                <div class="ltcg-results__row ltcg-results__row--secondary" id="ltcg-row-carryforward" hidden>
-                  <dt>Loss carryforward (unused)</dt>
-                  <dd id="ltcg-m-carryforward">—</dd>
-                </div>
-              </dl>
-              <p class="ltcg-results__note" id="ltcg-results-note"></p>
+              <label class="check-row">
+                <input type="checkbox" id="capital-loss-toggle" aria-describedby="capital-loss-tip" />
+                <span>Deduct $3,000 of capital losses</span>
+              </label>
             </div>
-              </div>
-          </details>
+          </div>
+
         </aside>
       </main>
 
@@ -344,14 +330,14 @@
           State tax: Utah (flat rate, 4.5% in 2025 and 4.45% in 2026, + taxpayer credit phase-out), California
           (brackets + 1% mental health surtax + exemption credits), Idaho (5.3% flat with small zero bracket), New York
           (state brackets; lower rates in 2026), Oregon (brackets + federal tax subtraction + exemption credit),
-          Arizona (2.5% flat + 25% LTCG subtraction), Nevada/Texas/Washington (no state income tax). Some 2026
+          Arizona (2.5% flat), Nevada/Texas/Washington (no state income tax). Some 2026
           state amounts not yet published use 2025 values; the app notes which when 2026 is selected.
           </p>
           <p>
-          Take-home pay, rates, the income chart and the state comparison cover wages only. Long-term capital gains
-          use <a href="https://www.irs.gov/taxtopics/tc409">preferential federal rates</a> (0% / 15% / 20%)
-          stacked on ordinary income and are shown separately under Capital gains; net losses offset up to $3,000
-          of ordinary income per year. Includes employee Social Security and Medicare only, not the employer share.
+          The model covers wage income. The optional capital loss deduction subtracts $3,000 of
+          <a href="https://www.irs.gov/taxtopics/tc409">net capital losses</a> from ordinary income for federal and
+          state tax; capital gains themselves are not modeled. Includes employee Social Security and Medicare only,
+          not the employer share.
           </p>
         </details>
       </footer>
